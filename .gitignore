@@ -1,0 +1,25 @@
+# environments and dependencies
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+web/dist/
+# secrets
+.env
+.env.*
+*.pem
+# project data and media never belong in this repo
+sample-project/
+renders/
+music/
+build/
+notes/
+*.mp4
+*.mov
+*.mkv
+*.wav
+*.mp3
+*.m4a
+.DS_Store
