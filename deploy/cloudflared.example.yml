@@ -1,0 +1,18 @@
+# /etc/cloudflared/dailies.yml: tunnel ingress for Dailies.
+# Access is enforced at the edge (your Access application), again here by cloudflared (originRequest.access),
+# and a third time by the server itself (DAILIES_ACCESS_*).
+tunnel: <TUNNEL-ID>
+credentials-file: /etc/cloudflared/<TUNNEL-ID>.json
+no-autoupdate: true
+
+ingress:
+  - hostname: dailies.example.com
+    service: http://127.0.0.1:8765
+    originRequest:
+      connectTimeout: 10s
+      access:
+        required: true
+        teamName: <your-team>
+        audTag:
+          - <ACCESS-APP-AUD-TAG>
+  - service: http_status:404

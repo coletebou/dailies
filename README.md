@@ -152,6 +152,9 @@ Dailies verifies the `Cf-Access-Jwt-Assertion` header (or `CF_Authorization` coo
 if the tunnel or edge policy is misconfigured. Keep secrets in the process environment or a secrets manager, not in
 the repository.
 
+For an always-on Linux server, [`deploy/`](deploy/README.md) has hardened systemd units for the server and the
+tunnel, an example env file and tunnel config, and the directory layout they expect.
+
 ## Security model
 
 - **Bind.** The server binds to loopback only and refuses anything else.
