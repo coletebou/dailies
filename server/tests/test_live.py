@@ -14,6 +14,10 @@ def test_live_scan_newest_first_and_filters(client, project):
     (project / "renders/tests/qa/s03_cycle_f0001.jpg").write_bytes(b"x")
     (project / "renders/snapshots/v02_1080/parts").mkdir()
     (project / "renders/snapshots/v02_1080/parts/s04_final_r1-60.mov").write_bytes(b"x")
+    # Pin the order: Linux stamps mtimes from a coarse clock, so two files written back to back can tie.
+    now = time.time()
+    os.utime(project / "renders/tests/qa/s03_cycle_f0001.jpg", (now - 2, now - 2))
+    os.utime(project / "renders/snapshots/v02_1080/parts/s04_final_r1-60.mov", (now - 1, now - 1))
     items = client.get("/api/live").json()["items"]
     names = [i["name"] for i in items]
     assert "s02_cycle_preview.part00001.mp4" not in names                     # chunk temps are not previews
