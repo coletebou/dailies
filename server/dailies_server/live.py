@@ -16,6 +16,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import threading
 import time
 from pathlib import Path
@@ -129,8 +130,11 @@ class LiveScanner:
         made = {}
         for sid, f in live.files.items():
             dst = dest / f.path.name
-            # clonefile(2) via cp -c: instant, no extra space on APFS; plain copy elsewhere
-            rc = subprocess.run(["cp", "-c", str(f.path), str(dst)], capture_output=True).returncode
+            # A copy-on-write clone where the filesystem has one: clonefile(2) via BSD `cp -c` on APFS, `cp --reflink=auto`
+            # on Linux (btrfs/XFS clone, ext4 falls back to a full copy). GNU cp reads `-c` as --preserve=context, so
+            # the flag must match the platform. Any failure falls back to a plain copy.
+            cmd = ["cp", "-c"] if sys.platform == "darwin" else ["cp", "--reflink=auto", "--preserve=timestamps"]
+            rc = subprocess.run([*cmd, str(f.path), str(dst)], capture_output=True).returncode
             if rc != 0:
                 shutil.copy2(f.path, dst)
             made[sid] = {"tier": f.tier, "from": rel_to_root(self.s.root, f.path), "mtime": f.path.stat().st_mtime}

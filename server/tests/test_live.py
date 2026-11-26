@@ -1,4 +1,6 @@
 import os
+import subprocess
+import sys
 import time
 from urllib.parse import parse_qs, urlsplit
 
@@ -65,3 +67,22 @@ def test_freeze_clones_live_shots_into_a_new_source(client, settings, project):
     assert src.version == "v07" and set(src.files) == {"s01", "s02", "s03"}
     assert client.post("/api/live/freeze", json={"name": "v07"}).status_code == 400   # never overwrites
     assert client.post("/api/live/freeze", json={"name": "../x"}).status_code == 400
+
+
+def test_freeze_asks_cp_for_a_clone_with_the_platform_flag(client, settings, monkeypatch):
+    # GNU cp reads BSD's clone flag `-c` as --preserve=context, so each platform needs its own spelling.
+    calls = []
+    real = subprocess.run
+
+    def spy(cmd, *a, **kw):
+        if cmd and cmd[0] == "cp":
+            calls.append(cmd)
+        return real(cmd, *a, **kw)
+
+    monkeypatch.setattr(subprocess, "run", spy)
+    assert client.post("/api/live/freeze", json={"name": "flags"}).status_code == 200
+    assert len(calls) == 3
+    want = ["cp", "-c"] if sys.platform == "darwin" else ["cp", "--reflink=auto", "--preserve=timestamps"]
+    assert all(c[:len(want)] == want for c in calls), calls
+    assert sorted(p.name for p in (settings.frozen_dir / "flags/shots").iterdir()) == \
+        ["s01_cycle.mov", "s02_cycle.mov", "s03_cycle.mov"]
