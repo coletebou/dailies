@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit -p tsconfig.json && vite build",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "tsrs --noEmit -p tsconfig.json && vite build",
+    "typecheck": "tsrs --noEmit -p tsconfig.json",
     "test": "node --import ./tests/ts-resolve.mjs --test tests/*.test.ts",
     "preview": "vite preview"
   },
@@ -19,6 +19,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
+    "tsrs": "7.1.0-beta.tsrs5",
     "typescript": "^7.0.2",
     "vite": "^8.3.2"
   }
